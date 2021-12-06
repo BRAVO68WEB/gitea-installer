@@ -66,9 +66,6 @@ echo "//-->> Update"
 apt-get update -q >> /dev/null 2>&1
 apt-get upgrade -q -y >> /dev/null 2>&1
 
-echo "//-->> Install packages"
-apt-get install git mariadb-server mariadb-client nano -q -y >> /dev/null 2>&1
-
 echo "//-->> Create user: git"
 adduser --system --shell /bin/bash --gecos 'Git Version Control' --group --disabled-password --home /home/git git >> /dev/null 2>&1
 cd /home/git/
@@ -88,13 +85,6 @@ mkdir /etc/gitea
 chown root:git /etc/gitea
 chmod 770 /etc/gitea
 
-# insert gitea user
-echo "//-->> Prepare database"
-mysql -e "CREATE USER '$dbuser'@'localhost' IDENTIFIED BY '$dbpassword';"
-mysql -e "CREATE DATABASE $dbtable;"
-mysql -e "GRANT ALL PRIVILEGES ON $dbtable . * TO '$dbuser'@'localhost';"
-mysql -e "FLUSH PRIVILEGES;"
-
 # systemvariable setzen
 echo "//-->> Set system variables"
 export GITEA_WORK_DIR=/var/lib/gitea/ >> /dev/null 2>&1
@@ -108,20 +98,6 @@ cp "$pwd/config/gitea-service.txt" "/etc/systemd/system/gitea.service"
 systemctl enable gitea >> /dev/null 2>&1
 service gitea start >> /dev/null 2>&1
 
-if [[ run_ci_tests == 0 ]]; then
-
-  while true; do
-    read -p "Do you want to secure your mysql-installation? [Y/n]" yn
-    case $yn in
-      [Yy]* ) mysql_secure_installation; break;;
-      [Jj]* ) mysql_secure_installation; break;;
-      [Nn]* ) break;;
-      * ) echo "ERROR! Please answer with [Y/n]";;
-    esac
-  done
-
-fi
-
 echo ""
 echo ""
 # datenbankverbindung ausgeben
@@ -129,13 +105,8 @@ echo "##########################################################################
 echo "Gitea was installed successfully!"
 echo "Now, open your browser and visit: http://$deineIP:3000"
 echo ""
-echo "--- Database ---"
-echo "username: $dbuser"
-echo "password: $dbpassword"
-echo "database: $dbtable"
-echo ""
-echo "author: Tim Riedl - uVulpos"
+echo "author: Tim Riedl - uVulpos || Repack by Bravo68web"
 echo "license: MIT"
-echo "sourcecode: https://github.com/uvulpos/gitea-installer"
+echo "sourcecode: https://github.com/BRAVO68WEB/gitea-installer"
 echo "##########################################################################"
 echo "Have fun :)"
